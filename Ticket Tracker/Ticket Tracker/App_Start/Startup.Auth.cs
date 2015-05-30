@@ -6,6 +6,8 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
 using Ticket_Tracker.Models;
+using Ticket_Tracker.DAL;
+using Ticket_Tracker.DAL.Models;
 
 namespace Ticket_Tracker
 {

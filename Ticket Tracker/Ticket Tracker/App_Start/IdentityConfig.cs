@@ -11,6 +11,8 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Ticket_Tracker.Models;
+using Ticket_Tracker.DAL.Models;
+using Ticket_Tracker.DAL;
 
 namespace Ticket_Tracker
 {
