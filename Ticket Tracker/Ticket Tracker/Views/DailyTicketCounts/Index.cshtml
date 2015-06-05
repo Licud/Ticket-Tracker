@@ -1,0 +1,181 @@
+﻿@model Ticket_Tracker.ViewModels.Overview
+
+@{
+    ViewBag.Title = "Ticket";
+}
+
+<div class="row">
+    <div class="col-md-9 col-sm-9 col-xs-7">
+        <h2>Tickets</h2>
+    </div>
+    <div class="col-md-3 col-sm-3 col-xs-5 top-pad">
+        <button class="btn btn-primary pull-right">Add New Ticket</button>
+    </div>
+</div>
+
+<div class="row top-pad">
+    <div class="col-md-12">
+        <table id="table_id" class="display">
+
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().TicketNumber)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().Customer)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().ActionWith)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().DefinedPriority)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().InProgressWith)</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in Model.Tickets.Where(model => model.Status != "Closed"))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.TicketNumber)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.Customer)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.ActionWith)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.DefinedPriority)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.InProgressWith)
+                        </td>
+                        <td>
+                            More Information
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+
+<hr />
+
+<div class="row">
+    <div class="col-md-9 col-sm-9 col-xs-7">
+        <h2>Customers</h2>
+    </div>
+    <div class="col-md-3 col-sm-3 col-xs-5 top-pad">
+        <button class="btn btn-primary pull-right">Add New Customer</button>
+    </div>
+</div>
+
+<div class="row top-pad">
+    <div class="col-md-12">
+        <table id="table_id" class="display">
+
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().Name)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().ServiceStartDate)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().ServiceEndDate)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().NumOpenTickets)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().NumOpenTicketsRelayware)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().NumOpenTicketsCust)</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customer in Model.Customers)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => customer.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => customer.ServiceStartDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => customer.ServiceEndDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => customer.NumOpenTickets)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => customer.NumOpenTicketsRelayware)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => customer.NumOpenTicketsCust)
+                        </td>
+                        <td>
+                            More Information
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <h2>Daily Ticket Count</h2>
+    </div>
+</div>
+
+<div class="row top-pad">
+    <div class="col-md-12">
+        <table id="table_id" class="display">
+
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.DailyTicketCount.FirstOrDefault().Day)</th>
+                    <th>@Html.DisplayNameFor(model => model.DailyTicketCount.FirstOrDefault().TotalOpenTicketsCust)</th>
+                    <th>@Html.DisplayNameFor(model => model.DailyTicketCount.FirstOrDefault().TotalOpenTicketsRelayware)</th>
+                    <th>@Html.DisplayNameFor(model => model.DailyTicketCount.FirstOrDefault().TotalClosedTickets)</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var dailyCount in Model.DailyTicketCount)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => dailyCount.Day)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => dailyCount.TotalOpenTicketsCust)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => dailyCount.TotalOpenTicketsRelayware)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => dailyCount.TotalClosedTickets)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+@section stylesheets
+{
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
+
+}
+
+@section scripts
+{
+    <!-- DataTables -->
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.js"></script>
+
+    <script>$(document).ready( function () {
+        $('.display').DataTable();
+    });
+    </script>
+}

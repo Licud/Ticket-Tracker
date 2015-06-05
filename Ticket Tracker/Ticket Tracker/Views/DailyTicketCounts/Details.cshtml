@@ -1,0 +1,50 @@
+﻿@model Ticket_Tracker.DAL.Models.DailyTicketCount
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DailyTicketCount</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Day)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Day)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TotalClosedTickets)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TotalClosedTickets)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TotalOpenTicketsCust)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TotalOpenTicketsCust)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TotalOpenTicketsRelayware)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TotalOpenTicketsRelayware)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.DailyTicketCountId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
