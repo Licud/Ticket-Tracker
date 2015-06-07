@@ -15,8 +15,8 @@ namespace Ticket_Tracker
 
             routes.MapRoute(
                 name: "Default",
-                url: "{controller}/{action}",
-                defaults: new { controller = "DailyTicketCounts", action = "Index", id = UrlParameter.Optional }
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "DailyTicketCounts", action = "Index", id = UrlParameter.Optional}
             );
         }
     }

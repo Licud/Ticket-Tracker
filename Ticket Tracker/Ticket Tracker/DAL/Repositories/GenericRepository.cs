@@ -40,17 +40,12 @@ namespace Ticket_Tracker.DAL.Repositories
 
         public virtual void UpdateRecord(TEntity entity)
         {
-            dbSet.Attach(entity);
             context.Entry(entity).State = EntityState.Modified;
         }
 
         public virtual void DeleteRecord(TEntity entity)
         {
-            if (context.Entry(entity).State == EntityState.Detached)
-            {
-                dbSet.Attach(entity);
-            }
-            dbSet.Remove(entity);
+            this.dbSet.Remove(entity);
         }
     }
 }

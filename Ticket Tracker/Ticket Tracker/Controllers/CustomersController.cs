@@ -52,8 +52,10 @@ namespace Ticket_Tracker.Controllers
             if (ModelState.IsValid)
             {
                 unitOfWork.CustomerRepository.AddRecord(customer);
+
                 unitOfWork.SaveChanges();
-                return RedirectToAction("Index");
+
+                return RedirectToAction("Index", "DailyTicketCounts", null);
             }
 
             return View(customer);
@@ -79,13 +81,15 @@ namespace Ticket_Tracker.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "CustomerId,Active,MainCustomerContact,Name,NotesOne,NumClosedTickets,NumOpenTickets,NumOpenTicketsCust,NumOpenTicketsRelayware,RelaywareContact,RelaywareResource,ServiceDuration,ServiceStartDate,ServiceEndDate")] Customer customer)
+        public ActionResult Edit([Bind(Include = "CustomerId,Active,MainCustomerContact,Name,NotesOne,RelaywareContact,RelaywareResource,ServiceDuration,ServiceStartDate,ServiceEndDate")] Customer customer)
         {
             if (ModelState.IsValid)
             {
                 unitOfWork.CustomerRepository.UpdateRecord(customer);
+
                 unitOfWork.SaveChanges();
-                return RedirectToAction("Index");
+
+                return RedirectToAction("Index", "DailyTicketCounts", null);
             }
             return View(customer);
         }
@@ -111,9 +115,19 @@ namespace Ticket_Tracker.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(id);
+
+            IEnumerable<Ticket> tickets = unitOfWork.TicketRepository.GetAllTicketsByCustomer(customer.CustomerId);
+
+            foreach(var ticket in tickets)
+            {
+                unitOfWork.TicketRepository.DeleteRecord(ticket);
+            }
+
             unitOfWork.CustomerRepository.DeleteRecord(customer);
+
             unitOfWork.SaveChanges();
-            return RedirectToAction("Index");
+
+            return RedirectToAction("Index", "DailyTicketCounts", null);
         }
 
         [HttpPost]

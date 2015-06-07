@@ -40,16 +40,7 @@ namespace Ticket_Tracker.Controllers
         // GET: Tickets/Create
         public ActionResult Create()
         {
-            IEnumerable<Customer> customers = unitOfWork.CustomerRepository.GetAllRecords();
-
-            List<SelectListItem> customerList = new List<SelectListItem>();
-
-            foreach(var customer in customers )
-            {
-                customerList.Add(new SelectListItem() { Text = customer.Name, Value = customer.CustomerId.ToString()} );
-            }
-
-            ViewBag.Customer = customerList;
+            ViewBag.Customer = this.GetCustomerList();
 
             return View();
         }
@@ -104,13 +95,18 @@ namespace Ticket_Tracker.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id.Value);
-            unitOfWork.SaveChanges();
-            if (ticket == null)
+
+            Ticket ticket = unitOfWork.TicketRepository.GetSingleTicketDetails(id.Value);
+
+            CustomerTicketWithState cTicket = new CustomerTicketWithState() { Ticket = ticket, CurrentStatus = ticket.Status, CurrentAction = ticket.ActionWith};
+
+            ViewBag.Customer = this.GetCustomerList();
+
+            if (cTicket.Ticket == null)
             {
                 return HttpNotFound();
             }
-            return View(ticket);
+            return View(cTicket);
         }
 
         // POST: Tickets/Edit/5
@@ -118,15 +114,47 @@ namespace Ticket_Tracker.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "TicketId,ActionWith,DateCreated,DefinedPriority,Description,InProgressWith,Notes,Status")] Ticket ticket)
+        public ActionResult Edit(CustomerTicketWithState cTicket)
         {
             if (ModelState.IsValid)
             {
-                unitOfWork.TicketRepository.UpdateRecord(ticket);
+                Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(Int32.Parse(cTicket.Customer));
+
+                if (!String.Equals(cTicket.CurrentStatus, cTicket.Ticket.Status, StringComparison.Ordinal) 
+                    || !String.Equals(cTicket.CurrentAction, cTicket.Ticket.ActionWith, StringComparison.Ordinal))
+                {
+                    if (cTicket.Ticket.Status.Equals("Open", StringComparison.Ordinal))
+                    {
+                        customer.NumClosedTickets -= 1;
+                        customer.NumOpenTickets += 1;
+                    }
+                    else if (cTicket.Ticket.Status.Equals("Closed", StringComparison.Ordinal))
+                    {
+                        customer.NumOpenTickets -= 1;
+                        customer.NumClosedTickets += 1;
+                    }
+
+                    if (cTicket.Ticket.ActionWith.Equals("Relayware", StringComparison.Ordinal))
+                    {
+                        customer.NumOpenTicketsCust -= 1;
+                        customer.NumOpenTicketsRelayware += 1;
+                    }
+                    else if (cTicket.Ticket.ActionWith.Equals("Customer", StringComparison.Ordinal))
+                    {
+                        customer.NumOpenTicketsRelayware -= 1;
+                        customer.NumOpenTicketsCust += 1;
+                    }
+
+                    unitOfWork.CustomerRepository.UpdateRecord(customer);
+                }
+
+                unitOfWork.TicketRepository.UpdateRecord(cTicket.Ticket);
                 unitOfWork.SaveChanges();
-                return RedirectToAction("Index");
+
+                return RedirectToAction("Index", "DailyTicketCounts", null);
             }
-            return View(ticket);
+
+            return View(cTicket);
         }
 
         // GET: Tickets/Delete/5
@@ -173,7 +201,7 @@ namespace Ticket_Tracker.Controllers
         }
 
         [HttpPost]
-        public JsonResult CloseTicket(int id)
+        public JsonResult CloseTicket(int id, int cid)
         {
             Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id);
 
@@ -181,34 +209,60 @@ namespace Ticket_Tracker.Controllers
 
             unitOfWork.TicketRepository.UpdateRecord(ticket);
 
+            Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(cid);
+
+            customer.NumClosedTickets += 1;
+            customer.NumOpenTickets -= 1;
+
+            unitOfWork.CustomerRepository.UpdateRecord(customer);
+
             unitOfWork.SaveChanges();
 
-            return Json(new { status = "Closed" });
+            return Json(new { status = ticket.Status, openTickets = customer.NumOpenTickets, custId = customer.CustomerId});
         }
 
         [HttpPost]
-        public JsonResult ChangeAction(int id)
+        public JsonResult ChangeAction(int id, int cid)
         {
             Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id);
 
-            string newAction = null;
+            Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(cid);
 
             if(ticket.ActionWith == "Relayware")
             {
+                customer.NumOpenTicketsCust += 1;
+                customer.NumOpenTicketsRelayware -= 1;
                 ticket.ActionWith = "Customer";
-                newAction = "Customer";
             }
             else if (ticket.ActionWith == "Customer")
             {
+                customer.NumOpenTicketsCust -= 1;
+                customer.NumOpenTicketsRelayware += 1;
                 ticket.ActionWith = "Relayware";
-                newAction = "Relayware";
             }
 
             unitOfWork.TicketRepository.UpdateRecord(ticket);
 
+            unitOfWork.CustomerRepository.UpdateRecord(customer);
+
             unitOfWork.SaveChanges();
 
-            return Json(new { action = newAction, ticketId = ticket.TicketId});
+            return Json(new { action = ticket.ActionWith, ticketId = ticket.TicketId, custId = customer.CustomerId,
+                                custOpenRW = customer.NumOpenTicketsRelayware, custOpen = customer.NumOpenTicketsCust});
+        }
+
+        public List<SelectListItem> GetCustomerList()
+        {
+            IEnumerable<Customer> customers = unitOfWork.CustomerRepository.GetAllRecords();
+
+            List<SelectListItem> customerList = new List<SelectListItem>();
+
+            foreach (var customer in customers)
+            {
+                customerList.Add(new SelectListItem() { Text = customer.Name, Value = customer.CustomerId.ToString() });
+            }
+
+            return customerList;
         }
 
         protected override void Dispose(bool disposing)

@@ -17,5 +17,10 @@ namespace Ticket_Tracker.DAL.Repositories
         {
             return context.Ticket.Where(t => t.Customer.CustomerId == customerId);
         }
+
+        public Ticket GetSingleTicketDetails(int id)
+        {
+            return context.Ticket.Include("Customer").Where(t => t.TicketId == id).FirstOrDefault();
+        }
     }
 }

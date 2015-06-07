@@ -36,12 +36,13 @@ $(function () {
         var path = "/Customers/GetDetails";
 
         // Get the id from the link
-        var recordToChange = $(this).attr("data-id");
+        var ticketId = $(this).attr("data-id");
+        var customerId = $(this).attr("data-cid");
 
-        if (recordToChange != '') {
+        if (ticketId != '') {
             // Perform the ajax post
 
-            $.post(path, { "id": recordToChange },
+            $.post(path, { "id": ticketId},
                 function (data) {
                     // Successful requests get here, update elements
                     $('#modal-customer-name').text(data.name);
@@ -68,14 +69,16 @@ $(function () {
         var path = "/Tickets/CloseTicket";
 
         // Get the id from the link
-        var recordToChange = $(this).attr("data-id");
+        var ticketId = $(this).attr("data-id");
+        var customerId = $(this).attr("data-cid");
 
-        if (recordToChange != '') {
+        if (ticketId != '' && customerId != '') {
             // Perform the ajax post
 
-            $.post(path, { "id": recordToChange },
+            $.post(path, { "id": ticketId, "cid": customerId },
                 function (data) {
                     // Successful requests get here, update elements
+                    $('#num-open-tickets-' + data.custId).text(data.openTickets);
                     $('#modal-ticket-status').text(data.status);
                 });
         }
@@ -86,15 +89,18 @@ $(function () {
         var path = "/Tickets/ChangeAction";
 
         // Get the id from the link
-        var recordToChange = $(this).attr("data-id");
+        var ticketId = $(this).attr("data-id");
+        var customerId = $(this).attr("data-cid");
 
-        if (recordToChange != '') {
+        if (ticketId != '' && customerId != '') {
             // Perform the ajax post
 
-            $.post(path, { "id": recordToChange },
+            $.post(path, { "id": ticketId, "cid": customerId },
                 function (data) {
                     // Successful requests get here, update elements
-                    $('.action-with-' + data.ticketId).text(data.action);
+                    $("#num-open-rw-" + data.custId).text(data.custOpenRW);
+                    $("#num-open-cust-" + data.custId).text(data.custOpen);
+                    $('#action-with-' + data.ticketId).text(data.action);
                 });
         }
     });

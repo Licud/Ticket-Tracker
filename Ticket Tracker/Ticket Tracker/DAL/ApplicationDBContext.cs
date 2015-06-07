@@ -14,6 +14,7 @@ namespace Ticket_Tracker.DAL
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
+            this.Configuration.LazyLoadingEnabled = false;            
         }
 
         public DbSet<Customer> Customer { get; set; }

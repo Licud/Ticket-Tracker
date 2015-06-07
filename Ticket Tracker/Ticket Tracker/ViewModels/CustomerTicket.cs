@@ -15,4 +15,18 @@ namespace Ticket_Tracker.ViewModels
         public Ticket Ticket { get; set; }
 
     }
+
+    public class CustomerTicketWithState
+    {
+
+        public string Customer { get; set; }
+
+        public Ticket Ticket { get; set; }
+
+        public string CurrentStatus { get; set; }
+
+        public string CurrentAction { get; set; }
+
+    }
+
 }

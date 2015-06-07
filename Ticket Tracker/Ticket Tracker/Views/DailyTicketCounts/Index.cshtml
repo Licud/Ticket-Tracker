@@ -47,7 +47,7 @@
                         <td>
                             @Html.DisplayFor(modelItem => ticket.DateCreated)
                         </td>
-                        <td class="action-with-@ticket.TicketId">
+                        <td id="action-with-@ticket.TicketId">
                             @Html.DisplayFor(modelItem => ticket.ActionWith)
                         </td>
                         <td>
@@ -59,9 +59,9 @@
                                 <ul class="dropdown-menu pull-right" role="menu">
                                     <li><a class="ticketInformation" href="#" data-id="@ticket.TicketId">More Information</a></li>
                                     <li class="divider"></li>
-                                    <li><a href="#">Edit Ticket</a></li>
-                                    <li><a class="closeTicket" href="#" data-id="@ticket.TicketId">Close Ticket</a></li>
-                                    <li><a class="changeAction" href="#" data-id="@ticket.TicketId">Change Action With</a></li>
+                                    <li>@Html.ActionLink("Edit Ticket", "Edit", "Tickets", new { id = ticket.TicketId }, null)</li>
+                                    <li><a class="closeTicket" href="#" data-cid="@ticket.Customer.CustomerId" data-id="@ticket.TicketId">Close Ticket</a></li>
+                                    <li><a class="changeAction" href="#" data-cid="@ticket.Customer.CustomerId" data-id="@ticket.TicketId">Change Action With</a></li>
                                 </ul>
                             </div>
                         </td>
@@ -113,13 +113,13 @@
                         <td>
                             @Html.DisplayFor(modelItem => customer.ServiceDuration)
                         </td>
-                        <td>
+                        <td id="num-open-tickets-@customer.CustomerId">
                             @Html.DisplayFor(modelItem => customer.NumOpenTickets)
                         </td>
-                        <td>
+                        <td id="num-open-rw-@customer.CustomerId">
                             @Html.DisplayFor(modelItem => customer.NumOpenTicketsRelayware)
                         </td>
-                        <td>
+                        <td id="num-open-cust-@customer.CustomerId">
                             @Html.DisplayFor(modelItem => customer.NumOpenTicketsCust)
                         </td>
                         <td>
@@ -129,10 +129,11 @@
                                     Options <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu pull-right" role="menu">
-                                    <li><a class="customerInformation" href="#" data-id="@customer.CustomerId" >More Information</a></li>
+                                    <li><a class="customerInformation" href="#" data-id="@customer.CustomerId">More Information</a></li>
                                     <li class="divider"></li>
-                                    <li><a href="#">Edit Customer</a></li>
-                                    <li><a href="#">Delete Customer</a></li>
+                                    <li>
+                                    <li>@Html.ActionLink("Edit Customer", "Edit", "Customers", new { id = customer.CustomerId }, null)</li>
+                                    <li>@Html.ActionLink("Delete Customer", "Delete", "Customers", new { id = customer.CustomerId }, null)</li>
                                 </ul>
                             </div>
                         </td>
