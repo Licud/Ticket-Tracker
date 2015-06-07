@@ -9,7 +9,7 @@
         <h2>Tickets</h2>
     </div>
     <div class="col-md-3 col-sm-3 col-xs-5 top-pad">
-        <button class="btn btn-primary pull-right">Add New Ticket</button>
+        @Html.ActionLink("Add New Ticket", "Create", "Tickets", null, new { @class = "btn btn-primary pull-right" })
     </div>
 </div>
 
@@ -20,10 +20,11 @@
             <thead>
                 <tr>
                     <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().TicketNumber)</th>
-                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().Customer)</th>
-                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().ActionWith)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().Description)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().Customer.Name)</th>
                     <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().DefinedPriority)</th>
-                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().InProgressWith)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().DateCreated)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().ActionWith)</th>
                     <th>Options</th>
                 </tr>
             </thead>
@@ -35,19 +36,34 @@
                             @Html.DisplayFor(modelItem => ticket.TicketNumber)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => ticket.Customer)
+                            @Html.DisplayFor(modelItem => ticket.Description)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => ticket.ActionWith)
+                            @Html.DisplayFor(modelItem => ticket.Customer.Name)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => ticket.DefinedPriority)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => ticket.InProgressWith)
+                            @Html.DisplayFor(modelItem => ticket.DateCreated)
+                        </td>
+                        <td class="action-with-@ticket.TicketId">
+                            @Html.DisplayFor(modelItem => ticket.ActionWith)
                         </td>
                         <td>
-                            More Information
+                            <!-- Split button -->
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    Options <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <li><a class="ticketInformation" href="#" data-id="@ticket.TicketId">More Information</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="#">Edit Ticket</a></li>
+                                    <li><a class="closeTicket" href="#" data-id="@ticket.TicketId">Close Ticket</a></li>
+                                    <li><a class="changeAction" href="#" data-id="@ticket.TicketId">Change Action With</a></li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -65,7 +81,7 @@
         <h2>Customers</h2>
     </div>
     <div class="col-md-3 col-sm-3 col-xs-5 top-pad">
-        <button class="btn btn-primary pull-right">Add New Customer</button>
+        @Html.ActionLink("Add New Customer", "Create", "Customers", null, new { @class = "btn btn-primary pull-right" })
     </div>
 </div>
 
@@ -76,8 +92,8 @@
             <thead>
                 <tr>
                     <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().Name)</th>
-                    <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().ServiceStartDate)</th>
-                    <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().ServiceEndDate)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().Active)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().ServiceDuration)</th>
                     <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().NumOpenTickets)</th>
                     <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().NumOpenTicketsRelayware)</th>
                     <th>@Html.DisplayNameFor(model => model.Customers.FirstOrDefault().NumOpenTicketsCust)</th>
@@ -92,10 +108,10 @@
                             @Html.DisplayFor(modelItem => customer.Name)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => customer.ServiceStartDate)
+                            @Html.DisplayFor(modelItem => customer.Active)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => customer.ServiceEndDate)
+                            @Html.DisplayFor(modelItem => customer.ServiceDuration)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => customer.NumOpenTickets)
@@ -107,7 +123,18 @@
                             @Html.DisplayFor(modelItem => customer.NumOpenTicketsCust)
                         </td>
                         <td>
-                            More Information
+                            <!-- Split button -->
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    Options <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <li><a class="customerInformation" href="#" data-id="@customer.CustomerId" >More Information</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="#">Edit Customer</a></li>
+                                    <li><a href="#">Delete Customer</a></li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -162,6 +189,170 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="ticketModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Ticket Information</h4>
+            </div>
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().TicketNumber)
+                    </dt>
+                    <dd id="modal-ticket-number">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().Description)
+                    </dt>
+                    <dd id="modal-ticket-desc">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().InProgressWith)
+                    </dt>
+                    <dd id="modal-ticket-progress">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().ActionWith)
+                    </dt>
+                    <dd id="modal-ticket-action">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().DateCreated)
+                    </dt>
+                    <dd id="modal-ticket-dateCreated">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().DefinedPriority)
+                    </dt>
+                    <dd id="modal-ticket-priority">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().Status)
+                    </dt>
+                    <dd id="modal-ticket-status">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().Notes)
+                    </dt>
+                    <dd id="modal-ticket-notes">
+                        Placeholder
+                    </dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modal-ticket-name">Customer Information</h4>
+            </div>
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().Name)
+                    </dt>
+                    <dd id="modal-customer-name">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().Active)
+                    </dt>
+                    <dd id="modal-customer-active">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().ServiceDuration)
+                    </dt>
+                    <dd id="modal-customer-servDuration">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().ServiceStartDate)
+                    </dt>
+                    <dd id="modal-customer-servStartDate">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().ServiceEndDate)
+                    </dt>
+                    <dd id="modal-customer-servEndDate">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().MainCustomerContact)
+                    </dt>
+                    <dd id="modal-customer-mainContact">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().NumOpenTickets)
+                    </dt>
+                    <dd id="modal-customer-numOpTickets">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().NumOpenTicketsCust)
+                    </dt>
+                    <dd id="modal-customer-numOpCust">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().NumOpenTicketsRelayware)
+                    </dt>
+                    <dd id="modal-customer-numOpRW">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().NumClosedTickets)
+                    </dt>
+                    <dd id="modal-customer-numClosedTickets">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().RelaywareContact)
+                    </dt>
+                    <dd id="modal-customer-rwContact">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().RelaywareResource)
+                    </dt>
+                    <dd id="modal-customer-rwResource">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customers.FirstOrDefault().NotesOne)
+                    </dt>
+                    <dd id="modal-customer-notes">
+                        Placeholder
+                    </dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section stylesheets
 {
     <!-- DataTables CSS -->
@@ -174,8 +365,11 @@
     <!-- DataTables -->
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.js"></script>
 
-    <script>$(document).ready( function () {
-        $('.display').DataTable();
-    });
+    <script type="text/javascript" charset="utf8" src="~/Scripts/custom-script.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.display').DataTable();
+        });
     </script>
 }

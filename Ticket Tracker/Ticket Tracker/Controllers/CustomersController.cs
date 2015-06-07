@@ -13,12 +13,12 @@ namespace Ticket_Tracker.Controllers
 {
     public class CustomersController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private UnitOfWork unitOfWork = new UnitOfWork();
 
         // GET: Customers
         public ActionResult Index()
         {
-            return View(db.Customer.ToList());
+            return View(unitOfWork.CustomerRepository.GetAllRecords());
         }
 
         // GET: Customers/Details/5
@@ -28,7 +28,7 @@ namespace Ticket_Tracker.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Customer customer = db.Customer.Find(id);
+            Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(id.Value);
             if (customer == null)
             {
                 return HttpNotFound();
@@ -47,12 +47,12 @@ namespace Ticket_Tracker.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "CustomerId,Active,MainCustomerContact,Name,NotesOne,NumClosedTickets,NumOpenTickets,NumOpenTicketsCust,NumOpenTicketsRelayware,RelaywareContact,RelaywareResource,ServiceDuration,ServiceStartDate,ServiceEndDate")] Customer customer)
+        public ActionResult Create([Bind(Include = "Active,MainCustomerContact,Name,NotesOne,RelaywareContact,RelaywareResource,ServiceDuration,ServiceStartDate,ServiceEndDate")] Customer customer)
         {
             if (ModelState.IsValid)
             {
-                db.Customer.Add(customer);
-                db.SaveChanges();
+                unitOfWork.CustomerRepository.AddRecord(customer);
+                unitOfWork.SaveChanges();
                 return RedirectToAction("Index");
             }
 
@@ -66,7 +66,7 @@ namespace Ticket_Tracker.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Customer customer = db.Customer.Find(id);
+            Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(id.Value);
             if (customer == null)
             {
                 return HttpNotFound();
@@ -83,8 +83,8 @@ namespace Ticket_Tracker.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(customer).State = EntityState.Modified;
-                db.SaveChanges();
+                unitOfWork.CustomerRepository.UpdateRecord(customer);
+                unitOfWork.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(customer);
@@ -97,7 +97,7 @@ namespace Ticket_Tracker.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Customer customer = db.Customer.Find(id);
+            Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(id.Value);
             if (customer == null)
             {
                 return HttpNotFound();
@@ -110,17 +110,42 @@ namespace Ticket_Tracker.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Customer customer = db.Customer.Find(id);
-            db.Customer.Remove(customer);
-            db.SaveChanges();
+            Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(id);
+            unitOfWork.CustomerRepository.DeleteRecord(customer);
+            unitOfWork.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public JsonResult GetDetails(int id)
+        {
+            Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(id);
+
+            var result = new
+            {
+                active = customer.Active,
+                custContact = customer.MainCustomerContact,
+                name = customer.Name,
+                notes = customer.NotesOne,
+                numClosedTickets = customer.NumClosedTickets,
+                numOpenTickets = customer.NumOpenTickets,
+                openCust = customer.NumOpenTicketsCust,
+                openRW = customer.NumOpenTicketsRelayware,
+                rwContact = customer.RelaywareContact,
+                rwResource = customer.RelaywareResource,
+                servDuration = customer.ServiceDuration,
+                endDate = customer.ServiceEndDate.ToShortDateString(),
+                startDate = customer.ServiceStartDate.ToShortDateString(),
+            };
+
+            return Json(result);
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                db.Dispose();
+                unitOfWork.Dispose();
             }
             base.Dispose(disposing);
         }

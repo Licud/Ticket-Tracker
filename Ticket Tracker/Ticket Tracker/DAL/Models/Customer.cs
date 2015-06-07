@@ -14,6 +14,7 @@ namespace Ticket_Tracker.DAL.Models
         [Display(Name = "Active?")]
         public bool Active {get; set;}
 
+        [Display(Name = "Customer Contact")]
         public string MainCustomerContact {get; set;}
         
         [Display(Name="Customer")]
@@ -34,21 +35,21 @@ namespace Ticket_Tracker.DAL.Models
         [Display(Name = "Open with Relayware")]
         public int NumOpenTicketsRelayware {get; set;}
 
-        [Display(Name = "Relayware Contact")]
+        [Display(Name = "RW Contact")]
         public string RelaywareContact {get; set;}
 
-        [Display(Name = "Relayware Resource")]
+        [Display(Name = "RW Resource")]
         public string RelaywareResource {get; set;}
 
         [Display(Name = "Service Duration")]
         public string ServiceDuration {get; set;}
 
         [DataType(DataType.Date)]
-        [Display(Name = "Service Start Date")]
+        [Display(Name = "MS Start Date")]
         public DateTime ServiceStartDate { get; set; }
 
         [DataType(DataType.Date)]
-        [Display(Name = "Service End Date")]
+        [Display(Name = "MS End Date")]
         public DateTime ServiceEndDate {get; set;}
 
         public IEnumerable<Ticket> Ticket {get; set;}

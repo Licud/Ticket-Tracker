@@ -14,7 +14,8 @@ namespace Ticket_Tracker.DAL.Models
         [Required]
         [Display(Name="Ticket #")]
         public int TicketNumber { get; set; }
-        
+
+        [Display(Name = "Action with")]
         public string ActionWith {get; set;}
 
         [DataType(DataType.Date)]
@@ -24,6 +25,7 @@ namespace Ticket_Tracker.DAL.Models
         [Display(Name = "Priority")]
         public string DefinedPriority {get; set;}
 
+        [Required]
         public string Description {get; set;}
 
         [Display(Name="Progress with")]

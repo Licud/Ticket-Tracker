@@ -50,7 +50,23 @@ namespace Ticket_Tracker.DAL
             }
         }
 
-        
+        public ApplicationDbContext GetDbContext
+        {
+            get
+            {
+                if (this.context == null)
+                {
+                    context = new ApplicationDbContext();
+                }
+                return this.context;
+            }
+        }
+
+        public void SaveChanges()
+        {
+            context.SaveChanges();
+        }
+
         private bool disposed = false;
 
         protected virtual void Dispose(bool disposing)

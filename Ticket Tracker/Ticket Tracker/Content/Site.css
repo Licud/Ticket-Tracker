@@ -26,3 +26,8 @@ textarea {
 .top-pad {
   padding-top: 15px;
 }
+
+li.custom-welcome{
+    color: gray;
+    padding-top:15px;
+}

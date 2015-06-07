@@ -8,17 +8,18 @@ using System.Web;
 using System.Web.Mvc;
 using Ticket_Tracker.DAL;
 using Ticket_Tracker.DAL.Models;
+using Ticket_Tracker.ViewModels;
 
 namespace Ticket_Tracker.Controllers
 {
     public class TicketsController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private UnitOfWork unitOfWork = new UnitOfWork();
 
         // GET: Tickets
         public ActionResult Index()
         {
-            return View(db.Ticket.ToList());
+            return View(unitOfWork.TicketRepository.GetAllRecords());
         }
 
         // GET: Tickets/Details/5
@@ -28,7 +29,7 @@ namespace Ticket_Tracker.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ticket ticket = db.Ticket.Find(id);
+            Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id.Value);
             if (ticket == null)
             {
                 return HttpNotFound();
@@ -39,6 +40,17 @@ namespace Ticket_Tracker.Controllers
         // GET: Tickets/Create
         public ActionResult Create()
         {
+            IEnumerable<Customer> customers = unitOfWork.CustomerRepository.GetAllRecords();
+
+            List<SelectListItem> customerList = new List<SelectListItem>();
+
+            foreach(var customer in customers )
+            {
+                customerList.Add(new SelectListItem() { Text = customer.Name, Value = customer.CustomerId.ToString()} );
+            }
+
+            ViewBag.Customer = customerList;
+
             return View();
         }
 
@@ -47,16 +59,42 @@ namespace Ticket_Tracker.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "TicketId,ActionWith,DateCreated,DefinedPriority,Description,InProgressWith,Notes,Status")] Ticket ticket)
+        public ActionResult Create(CustomerTicket cTicket)
         {
             if (ModelState.IsValid)
             {
-                db.Ticket.Add(ticket);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(Int32.Parse(cTicket.Customer));
+
+                if(cTicket.Ticket.ActionWith == "Relayware")
+                {
+                    customer.NumOpenTicketsRelayware += 1;
+                }
+                else if(cTicket.Ticket.ActionWith == "Customer")
+                {
+                    customer.NumOpenTicketsCust += 1;
+                }
+
+                if(cTicket.Ticket.Status == "Open")
+                {
+                    customer.NumOpenTickets += 1;
+                }
+                else if(cTicket.Ticket.Status == "Closed")
+                {
+                    customer.NumClosedTickets += 1;
+                }
+
+                unitOfWork.CustomerRepository.UpdateRecord(customer);
+
+                cTicket.Ticket.Customer = customer;
+
+                unitOfWork.TicketRepository.AddRecord(cTicket.Ticket);
+
+                unitOfWork.SaveChanges();
+
+                return RedirectToAction("Index", "DailyTicketCounts", null);
             }
 
-            return View(ticket);
+            return View();
         }
 
         // GET: Tickets/Edit/5
@@ -66,7 +104,8 @@ namespace Ticket_Tracker.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ticket ticket = db.Ticket.Find(id);
+            Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id.Value);
+            unitOfWork.SaveChanges();
             if (ticket == null)
             {
                 return HttpNotFound();
@@ -83,8 +122,8 @@ namespace Ticket_Tracker.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(ticket).State = EntityState.Modified;
-                db.SaveChanges();
+                unitOfWork.TicketRepository.UpdateRecord(ticket);
+                unitOfWork.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(ticket);
@@ -97,7 +136,7 @@ namespace Ticket_Tracker.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Ticket ticket = db.Ticket.Find(id);
+            Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id.Value);
             if (ticket == null)
             {
                 return HttpNotFound();
@@ -110,17 +149,73 @@ namespace Ticket_Tracker.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Ticket ticket = db.Ticket.Find(id);
-            db.Ticket.Remove(ticket);
-            db.SaveChanges();
+            Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id);
+            unitOfWork.TicketRepository.DeleteRecord(ticket);
+            unitOfWork.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public JsonResult GetDetails(int id)
+        {
+            Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id);
+
+            var result = new {  number = ticket.TicketNumber,
+                                progress = ticket.InProgressWith,
+                                dateCreated = ticket.DateCreated.ToShortDateString(),
+                                priority = ticket.DefinedPriority,
+                                description = ticket.Description,
+                                notes = ticket.Notes,
+                                status = ticket.Status,
+                                actionWith = ticket.ActionWith};
+
+            return Json(result);
+        }
+
+        [HttpPost]
+        public JsonResult CloseTicket(int id)
+        {
+            Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id);
+
+            ticket.Status = "Closed";
+
+            unitOfWork.TicketRepository.UpdateRecord(ticket);
+
+            unitOfWork.SaveChanges();
+
+            return Json(new { status = "Closed" });
+        }
+
+        [HttpPost]
+        public JsonResult ChangeAction(int id)
+        {
+            Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id);
+
+            string newAction = null;
+
+            if(ticket.ActionWith == "Relayware")
+            {
+                ticket.ActionWith = "Customer";
+                newAction = "Customer";
+            }
+            else if (ticket.ActionWith == "Customer")
+            {
+                ticket.ActionWith = "Relayware";
+                newAction = "Relayware";
+            }
+
+            unitOfWork.TicketRepository.UpdateRecord(ticket);
+
+            unitOfWork.SaveChanges();
+
+            return Json(new { action = newAction, ticketId = ticket.TicketId});
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                db.Dispose();
+                unitOfWork.Dispose();
             }
             base.Dispose(disposing);
         }
