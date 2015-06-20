@@ -1,28 +1,38 @@
-﻿@model Ticket_Tracker.ViewModels.CustomerTicketWithState
+﻿@model Ticket_Tracker.ViewModels.CustomerTicket
 
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = "New Ticket";
 }
 
-<h2>Edit Ticket</h2>
+<h2>New Ticket</h2>
 
 
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.Ticket.TicketId)
-        @Html.HiddenFor(model => model.Ticket.ActionWith)
-        @Html.HiddenFor(model => model.Ticket.Status)
 
         <div class="form-group col-md-6 col-sm-6">
             @Html.LabelFor(model => model.Ticket.TicketNumber, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
             <div class="col-md-8 col-sm-8">
                 @Html.EditorFor(model => model.Ticket.TicketNumber, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.Ticket.TicketNumber, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group col-md-6 col-sm-6">
+            @Html.LabelFor(model => model.Ticket.ActionWith, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
+            <div class="col-md-8 col-sm-8">
+                @Html.DropDownListFor(model => model.Ticket.ActionWith, new SelectList(
+                  new List<Object>{
+                       new { value = "Customer" , text = "Customer" },
+                       new { value = "Relayware" , text = "Relayware" },
+                    }, "value", "text"),
+                    "--Select Action With--", htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Ticket.ActionWith, "", new { @class = "text-danger" })
             </div>
         </div>
 
@@ -65,24 +75,23 @@
         </div>
 
         <div class="form-group col-md-6 col-sm-6">
+            @Html.LabelFor(model => model.Ticket.Status, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
+            <div class="col-md-8 col-sm-8">
+                @Html.DropDownListFor(model => model.Ticket.Status, new SelectList(
+                  new List<Object>{
+                       new { value = "Open" , text = "Open" },
+                       new { value = "Closed" , text = "Closed" },
+                    }, "value", "text"),
+                "--Select Status--", htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Ticket.Status, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group col-md-6 col-sm-6">
             @Html.LabelFor(model => model.Ticket.DateCreated, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
             <div class="col-md-8 col-sm-8">
                 @Html.EditorFor(model => model.Ticket.DateCreated, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.Ticket.DateCreated, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group col-md-6 col-sm-6">
-            @Html.LabelFor(model => model.Ticket.Status, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
-            <div class="col-md-8 col-sm-8">
-                <div class="add-margin-7">@Model.Ticket.Status</div>
-            </div>
-        </div>
-
-        <div class="form-group col-md-6 col-sm-6">
-            @Html.LabelFor(model => model.Ticket.ActionWith, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
-            <div class="col-md-8 col-sm-8">
-                <div class="add-margin-7">@Model.Ticket.ActionWith</div>
             </div>
         </div>
 
@@ -96,12 +105,13 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" />
                 @Html.ActionLink("Back to List", "Index", "DailyTicketCounts", null, new { @class = "btn btn-primary" })
             </div>
         </div>
     </div>
 }
+
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

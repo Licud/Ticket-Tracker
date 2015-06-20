@@ -1,122 +1,385 @@
-﻿@model Ticket_Tracker.DAL.Models.Customer
-
+﻿@model Ticket_Tracker.ViewModels.CustomerDetails
 @{
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
+<h2>@Model.Customer.Name Details</h2>
+
+<div class="row top-pad">
+    <div class="col-md-12">
+        <table id="table_id" class="display">
+
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Customer.Name)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customer.Active)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customer.ServiceDuration)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customer.NumOpenTickets)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customer.NumOpenTicketsRelayware)</th>
+                    <th>@Html.DisplayNameFor(model => model.Customer.NumOpenTicketsCust)</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => modelItem.Customer.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => modelItem.Customer.Active)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => modelItem.Customer.ServiceDuration)
+                    </td>
+                    <td id="num-open-tickets-@Model.Customer.CustomerId">
+                        @Html.DisplayFor(modelItem => modelItem.Customer.NumOpenTickets)
+                    </td>
+                    <td id="num-open-rw-@Model.Customer.CustomerId">
+                        @Html.DisplayFor(modelItem => modelItem.Customer.NumOpenTicketsRelayware)
+                    </td>
+                    <td id="num-open-cust-@Model.Customer.CustomerId">
+                        @Html.DisplayFor(modelItem => modelItem.Customer.NumOpenTicketsCust)
+                    </td>
+                    <td>
+                        <!-- Split button -->
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                Options <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu pull-right" role="menu">
+                                <li><a class="customerInformation" href="#" data-id="@Model.Customer.CustomerId">More Information</a></li>
+                                <li class="divider"></li>
+                                <li>
+                                <li>@Html.ActionLink("Edit Customer", "Edit", "Customers", new { id = Model.Customer.CustomerId }, null)</li>
+                                <li>@Html.ActionLink("Delete Customer", "Delete", "Customers", new { id = Model.Customer.CustomerId }, null)</li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<h2>Open Tickets</h2>
+
+<div class="row top-pad">
+    <div class="col-md-12">
+        <table id="table_id" class="display">
+
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().TicketNumber)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().Description)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().Customer.Name)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().DefinedPriority)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().DateCreated)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().ActionWith)</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in Model.Tickets.Where(model => model.Status == "Open"))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.TicketNumber)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.Customer.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.DefinedPriority)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.DateCreated)
+                        </td>
+                        <td id="action-with-@ticket.TicketId">
+                            @Html.DisplayFor(modelItem => ticket.ActionWith)
+                        </td>
+                        <td>
+                            <!-- Split button -->
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    Options <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <li><a class="ticketInformation" href="#" data-id="@ticket.TicketId">More Information</a></li>
+                                    <li class="divider"></li>
+                                    <li>@Html.ActionLink("Edit Ticket", "Edit", "Tickets", new { id = ticket.TicketId }, null)</li>
+                                    <li><a class="closeTicket" href="#" data-cid="@ticket.Customer.CustomerId" data-id="@ticket.TicketId">Close Ticket</a></li>
+                                    <li><a class="changeAction" href="#" data-cid="@ticket.Customer.CustomerId" data-id="@ticket.TicketId">Change Action With</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<hr />
+
+<h2>Closed Tickets</h2>
+
+
+<div class="row top-pad">
+    <div class="col-md-12">
+        <table id="table_id" class="display">
+
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().TicketNumber)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().Description)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().Customer.Name)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().DefinedPriority)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().DateCreated)</th>
+                    <th>@Html.DisplayNameFor(model => model.Tickets.FirstOrDefault().ActionWith)</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in Model.Tickets.Where(model => model.Status == "Closed"))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.TicketNumber)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.Customer.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.DefinedPriority)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => ticket.DateCreated)
+                        </td>
+                        <td id="action-with-@ticket.TicketId">
+                            @Html.DisplayFor(modelItem => ticket.ActionWith)
+                        </td>
+                        <td>
+                            <!-- Split button -->
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    Options <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <li><a class="ticketInformation" href="#" data-id="@ticket.TicketId">More Information</a></li>
+                                    <li class="divider"></li>
+                                    <li>@Html.ActionLink("Edit Ticket", "Edit", "Tickets", new { id = ticket.TicketId }, null)</li>
+                                    <li><a class="openTicket" href="#" data-cid="@ticket.Customer.CustomerId" data-id="@ticket.TicketId">Open Ticket</a></li>
+                                    <li><a class="changeAction" href="#" data-cid="@ticket.Customer.CustomerId" data-id="@ticket.TicketId">Change Action With</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="ticketModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Ticket Information</h4>
+            </div>
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().TicketNumber)
+                    </dt>
+                    <dd id="modal-ticket-number">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().Description)
+                    </dt>
+                    <dd id="modal-ticket-desc">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().InProgressWith)
+                    </dt>
+                    <dd id="modal-ticket-progress">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().ActionWith)
+                    </dt>
+                    <dd id="modal-ticket-action">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().DateCreated)
+                    </dt>
+                    <dd id="modal-ticket-dateCreated">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().DefinedPriority)
+                    </dt>
+                    <dd id="modal-ticket-priority">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().Status)
+                    </dt>
+                    <dd id="modal-ticket-status">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Tickets.FirstOrDefault().Notes)
+                    </dt>
+                    <dd id="modal-ticket-notes">
+                        Placeholder
+                    </dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Customer Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modal-ticket-name">Customer Information</h4>
+            </div>
+            <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.Name)
+                    </dt>
+                    <dd id="modal-customer-name">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.Active)
+                    </dt>
+                    <dd id="modal-customer-active">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.ServiceDuration)
+                    </dt>
+                    <dd id="modal-customer-servDuration">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.ServiceStartDate)
+                    </dt>
+                    <dd id="modal-customer-servStartDate">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.ServiceEndDate)
+                    </dt>
+                    <dd id="modal-customer-servEndDate">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.MainCustomerContact)
+                    </dt>
+                    <dd id="modal-customer-mainContact">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.NumOpenTickets)
+                    </dt>
+                    <dd id="modal-customer-numOpTickets">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.NumOpenTicketsCust)
+                    </dt>
+                    <dd id="modal-customer-numOpCust">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.NumOpenTicketsRelayware)
+                    </dt>
+                    <dd id="modal-customer-numOpRW">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.NumClosedTickets)
+                    </dt>
+                    <dd id="modal-customer-numClosedTickets">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.RelaywareContact)
+                    </dt>
+                    <dd id="modal-customer-rwContact">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.RelaywareResource)
+                    </dt>
+                    <dd id="modal-customer-rwResource">
+                        Placeholder
+                    </dd>
+                    <dt>
+                        @Html.LabelFor(model => model.Customer.NotesOne)
+                    </dt>
+                    <dd id="modal-customer-notes">
+                        Placeholder
+                    </dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<hr />
 
 <div>
-    <h4>Customer</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Active)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Active)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.MainCustomerContact)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.MainCustomerContact)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.NotesOne)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.NotesOne)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.NumClosedTickets)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.NumClosedTickets)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.NumOpenTickets)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.NumOpenTickets)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.NumOpenTicketsCust)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.NumOpenTicketsCust)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.NumOpenTicketsRelayware)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.NumOpenTicketsRelayware)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.RelaywareContact)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.RelaywareContact)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.RelaywareResource)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.RelaywareResource)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.ServiceDuration)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ServiceDuration)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.ServiceStartDate)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ServiceStartDate)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.ServiceEndDate)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ServiceEndDate)
-        </dd>
-
-    </dl>
+    @Html.ActionLink("Back to Overview", "Index", "DailyTicketCounts", null, new { @class = "btn btn-primary" })
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.CustomerId }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+
+@section stylesheets
+{
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
+
+}
+
+@section scripts
+{
+    <!-- DataTables -->
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.js"></script>
+
+    <script type="text/javascript" charset="utf8" src="~/Scripts/custom-script-min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.display').DataTable();
+        });
+    </script>
+}

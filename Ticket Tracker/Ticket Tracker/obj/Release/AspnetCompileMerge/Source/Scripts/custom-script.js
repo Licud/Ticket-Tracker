@@ -86,8 +86,6 @@ $(function () {
                         $('#num-openrw-dc-' + data.dCountId).text(data.dCountRW);
                         $('#num-opened-dc-' + data.dCountId).text(data.dCountOpen);
                         $('#num-closed-dc-' + data.dCountId).text(data.dCountClosed);
-                        $('#num-open-rw-' + data.custId).text(data.custOpenRW);
-                        $('#num-open-cust-' + data.custId).text(data.custOpenCustomer);
                     }
                 });
         }

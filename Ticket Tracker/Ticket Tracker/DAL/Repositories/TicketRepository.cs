@@ -22,5 +22,15 @@ namespace Ticket_Tracker.DAL.Repositories
         {
             return context.Ticket.Include("Customer").Where(t => t.TicketId == id).FirstOrDefault();
         }
+
+        public IEnumerable<Ticket> GetAllTicketsWithCustomers()
+        {
+            return this.context.Ticket.Include("Customer").ToList();
+        }
+
+        public IEnumerable<Ticket> GetAllOpenTickets()
+        {
+            return this.context.Ticket.Include("Customer").Where(t => t.Status == "Open");
+        }
     }
 }

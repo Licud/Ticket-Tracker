@@ -29,4 +29,12 @@ namespace Ticket_Tracker.ViewModels
 
     }
 
+    public class CustomerDetails
+    {
+        public Customer Customer { get; set; }
+
+        public IEnumerable<Ticket> Tickets { get; set; }
+    }
+
+
 }

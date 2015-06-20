@@ -1,0 +1,103 @@
+﻿@model Ticket_Tracker.DAL.Models.Customer
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete @Model.Name?</h2>
+
+<h3>Are you sure you want to delete this customer? It will also delete all their tickets.</h3>
+<div>
+    <hr />
+
+    <div class="col-md-6 col-sm-6 col-xs-6">
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.LabelFor(model => model.Name):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+            <dt>
+                @Html.LabelFor(model => model.Active):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Active)
+            </dd>
+            <dt>
+                @Html.LabelFor(model => model.MainCustomerContact):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.MainCustomerContact)
+            </dd>
+            <dt>
+                @Html.LabelFor(model => model.RelaywareContact):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RelaywareContact)
+            </dd>
+            <dt>
+                @Html.LabelFor(model => model.ServiceStartDate):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.ServiceStartDate)
+            </dd>
+            <dt>
+                @Html.LabelFor(model => model.NotesOne):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.NotesOne)
+            </dd>
+        </dl>
+    </div>
+
+    <div class="col-md-6 col-sm-6 col-xs-6">
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.LabelFor(model => model.NumOpenTickets):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.NumOpenTickets)
+            </dd>
+            <dt>
+                @Html.LabelFor(model => model.NumOpenTicketsCust):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.NumOpenTickets)
+            </dd>
+            <dt>
+                @Html.LabelFor(model => model.NumOpenTicketsRelayware):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.NumOpenTicketsRelayware)
+            </dd>
+            <dt>
+                @Html.LabelFor(model => model.RelaywareResource):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RelaywareResource)
+            </dd>
+            <dt>
+                @Html.LabelFor(model => model.ServiceEndDate):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.ServiceEndDate)
+            </dd>
+            <dt>
+                @Html.LabelFor(model => model.ServiceDuration):
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.ServiceDuration)
+            </dd>
+        </dl>
+    </div>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+    <div class="col-md-offset-1 col-sm-offset-1">
+        <input type="submit" value="Delete" class="btn btn-primary" />
+        @Html.ActionLink("Back to Overview", "Index", "DailyTicketCounts", null, new { @class = "btn btn-primary"})
+    </div>
+    }
+</div>

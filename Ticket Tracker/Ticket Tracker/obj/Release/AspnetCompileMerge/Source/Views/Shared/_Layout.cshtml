@@ -26,7 +26,6 @@
                         <li>@Html.ActionLink("Overview", "Index", "DailyTicketCounts")</li>
                         <li>@Html.ActionLink("Tickets", "Index", "Tickets")</li>
                         <li>@Html.ActionLink("Customer", "Index", "Customers")</li>
-                        <li>@Html.ActionLink("Statistics", "Statistics", "DailyTicketCounts")</li>
                     </ul>
                 }
                 @Html.Partial("_LoginPartial")
@@ -35,13 +34,12 @@
     </div>
     <div class="container body-content">
         @RenderBody()
-    </div>
-    <div class="container">
         <hr />
         <footer>
-            <h6>&copy; @DateTime.Now.Year - Ticket Tracker</h6>
+            <p>&copy; @DateTime.Now.Year - Ticket Tracker</p>
         </footer>
     </div>
+
     @Scripts.Render("~/bundles/jquery")
     @RenderSection("scripts", required: false)
     @Scripts.Render("~/bundles/bootstrap")

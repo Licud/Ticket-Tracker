@@ -8,9 +8,11 @@ using System.Web;
 using System.Web.Mvc;
 using Ticket_Tracker.DAL;
 using Ticket_Tracker.DAL.Models;
+using Ticket_Tracker.ViewModels;
 
 namespace Ticket_Tracker.Controllers
 {
+    [Authorize]
     public class CustomersController : Controller
     {
         private UnitOfWork unitOfWork = new UnitOfWork();
@@ -28,12 +30,17 @@ namespace Ticket_Tracker.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(id.Value);
-            if (customer == null)
+            CustomerDetails customerDetails = new CustomerDetails();
+
+            customerDetails.Customer = unitOfWork.CustomerRepository.GetSingleRecord(id.Value);
+
+            customerDetails.Tickets = unitOfWork.TicketRepository.GetAllTicketsByCustomer(customerDetails.Customer.CustomerId);
+
+            if (customerDetails.Customer == null)
             {
                 return HttpNotFound();
             }
-            return View(customer);
+            return View(customerDetails);
         }
 
         // GET: Customers/Create

@@ -45,6 +45,34 @@ namespace Ticket_Tracker.Controllers
             return View(dailyTicketCount);
         }
 
+        // GET: DailyTicketCounts/Statistics
+        public ActionResult Statistics()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult GetStatistics()
+        {
+            var tickets = unitOfWork.TicketRepository.GetAllOpenTickets();
+
+            int openWithCustomer = tickets.Where(t => t.ActionWith == "Customer").Count();
+            int openWithRelayware = tickets.Where(t => t.ActionWith == "Relayware").Count();
+
+            var customers = unitOfWork.CustomerRepository.GetAllRecords();
+
+            var customerNames = new List<String>();
+            var customerTicketCount = new List<int>();
+
+            foreach(var customer in customers){
+                customerNames.Add(customer.Name);
+                customerTicketCount.Add(customer.NumOpenTickets);
+            }
+
+            return Json(new { totalOpen = openWithCustomer + openWithRelayware, openCust = openWithCustomer, openRW = openWithRelayware,
+                                custNames = customerNames.ToArray(), custOpen = customerTicketCount.ToArray()});
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

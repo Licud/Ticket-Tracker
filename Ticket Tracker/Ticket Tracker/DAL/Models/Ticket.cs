@@ -36,5 +36,7 @@ namespace Ticket_Tracker.DAL.Models
         public string Status {get; set;}
 
         public Customer Customer {get; set;}
+
+        public int CustomerId { get; set; }
     }
 }

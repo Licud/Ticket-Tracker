@@ -1,0 +1,104 @@
+﻿@model Ticket_Tracker.DAL.Models.Customer
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit @Model.Name</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.CustomerId)
+
+        <div class="form-group col-md-6 col-sm-6">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
+            <div class="col-md-8 col-sm-8">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group col-md-6 col-sm-6">
+            @Html.LabelFor(model => model.RelaywareContact, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
+            <div class="col-md-8 col-sm-8">
+                @Html.EditorFor(model => model.RelaywareContact, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.RelaywareContact, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group col-md-6 col-sm-6">
+            @Html.LabelFor(model => model.Active, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
+            <div class="col-md-8 col-sm-8">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.Active)
+                    @Html.ValidationMessageFor(model => model.Active, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group col-md-6 col-sm-6">
+            @Html.LabelFor(model => model.ServiceStartDate, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
+            <div class="col-md-8 col-sm-8">
+                @Html.EditorFor(model => model.ServiceStartDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ServiceStartDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group col-md-6 col-sm-6">
+            @Html.LabelFor(model => model.ServiceEndDate, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
+            <div class="col-md-8 col-sm-8">
+                @Html.EditorFor(model => model.ServiceEndDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ServiceEndDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group col-md-6 col-sm-6">
+            @Html.LabelFor(model => model.MainCustomerContact, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
+            <div class="col-md-8 col-sm-8">
+                @Html.EditorFor(model => model.MainCustomerContact, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.MainCustomerContact, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group col-md-6 col-sm-6">
+            @Html.LabelFor(model => model.RelaywareResource, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
+            <div class="col-md-8 col-sm-8">
+                @Html.EditorFor(model => model.RelaywareResource, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.RelaywareResource, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group col-md-6 col-sm-6">
+            @Html.LabelFor(model => model.ServiceDuration, htmlAttributes: new { @class = "control-label col-md-4 col-sm-4" })
+            <div class="col-md-8 col-sm-8">
+                @Html.EditorFor(model => model.ServiceDuration, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ServiceDuration, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.NotesOne, htmlAttributes: new { @class = "control-label col-md-2 col-sm-2" })
+            <div class="col-md-10 col-sm-10">
+                @Html.TextAreaFor(model => model.NotesOne, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.NotesOne, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-sm-offset-2">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                @Html.ActionLink("Back to Overview", "Index", "DailyTicketCounts", null, new { @class = "btn btn-primary" })
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

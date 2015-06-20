@@ -33,6 +33,11 @@ namespace Ticket_Tracker.DAL.Repositories
             return this.dbSet.Find(id);
         }
 
+        public virtual TEntity LatestRecord()
+        {
+            return this.dbSet.ToList().Last();
+        }
+
         public virtual void AddRecord(TEntity entity)
         {
             this.dbSet.Add(entity);

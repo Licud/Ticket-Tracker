@@ -104,8 +104,7 @@
                 {
                     <tr>
                         <td>
-                            @Html.ActionLink(customer.Name, "Details", "Customers", new { id = customer.CustomerId}, null)
-                            @*@Html.DisplayFor(modelItem => customer.Name)*@
+                            @Html.DisplayFor(modelItem => customer.Name)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => customer.Active)
@@ -360,6 +359,8 @@
 
 <hr />
 
+<div class="col-md-12 text-center"><p>Number of times you can ask a question today: <em>(random number - steven's morning email) + increment when Jaime think's he's ripped </em></p></div>
+
 @section stylesheets
 {
     <!-- DataTables CSS -->
@@ -372,7 +373,7 @@
     <!-- DataTables -->
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.js"></script>
 
-    <script type="text/javascript" charset="utf8" src="~/Scripts/custom-script-min.js"></script>
+    <script type="text/javascript" charset="utf8" src="~/Scripts/custom-script.js"></script>
 
     <script>
         $(document).ready(function () {

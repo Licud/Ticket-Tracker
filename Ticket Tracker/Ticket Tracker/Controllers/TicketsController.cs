@@ -12,6 +12,7 @@ using Ticket_Tracker.ViewModels;
 
 namespace Ticket_Tracker.Controllers
 {
+    [Authorize]
     public class TicketsController : Controller
     {
         private UnitOfWork unitOfWork = new UnitOfWork();
@@ -19,7 +20,7 @@ namespace Ticket_Tracker.Controllers
         // GET: Tickets
         public ActionResult Index()
         {
-            return View(unitOfWork.TicketRepository.GetAllRecords());
+            return View(unitOfWork.TicketRepository.GetAllTicketsWithCustomers());
         }
 
         // GET: Tickets/Details/5
@@ -56,22 +57,28 @@ namespace Ticket_Tracker.Controllers
             {
                 Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(Int32.Parse(cTicket.Customer));
 
-                if(cTicket.Ticket.ActionWith == "Relayware")
+                DailyTicketCount dailyCount = unitOfWork.DailyTicketCountRepository.LatestRecord();
+
+                if (cTicket.Ticket.ActionWith.Equals("Relayware", StringComparison.Ordinal))
                 {
                     customer.NumOpenTicketsRelayware += 1;
+                    dailyCount.TotalOpenTicketsRelayware += 1;
                 }
-                else if(cTicket.Ticket.ActionWith == "Customer")
+                else if (cTicket.Ticket.ActionWith.Equals("Customer", StringComparison.Ordinal))
                 {
                     customer.NumOpenTicketsCust += 1;
+                    dailyCount.TotalOpenTicketsCust += 1;
                 }
 
-                if(cTicket.Ticket.Status == "Open")
+                if (cTicket.Ticket.Status.Equals("Open", StringComparison.Ordinal))
                 {
                     customer.NumOpenTickets += 1;
+                    dailyCount.TotalOpenedTicket += 1;
                 }
-                else if(cTicket.Ticket.Status == "Closed")
+                else if (cTicket.Ticket.Status.Equals("Closed", StringComparison.Ordinal))
                 {
                     customer.NumClosedTickets += 1;
+                    dailyCount.TotalClosedTickets += 1;
                 }
 
                 unitOfWork.CustomerRepository.UpdateRecord(customer);
@@ -79,6 +86,8 @@ namespace Ticket_Tracker.Controllers
                 cTicket.Ticket.Customer = customer;
 
                 unitOfWork.TicketRepository.AddRecord(cTicket.Ticket);
+
+                unitOfWork.DailyTicketCountRepository.UpdateRecord(dailyCount);
 
                 unitOfWork.SaveChanges();
 
@@ -120,36 +129,12 @@ namespace Ticket_Tracker.Controllers
             {
                 Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(Int32.Parse(cTicket.Customer));
 
-                if (!String.Equals(cTicket.CurrentStatus, cTicket.Ticket.Status, StringComparison.Ordinal) 
-                    || !String.Equals(cTicket.CurrentAction, cTicket.Ticket.ActionWith, StringComparison.Ordinal))
-                {
-                    if (cTicket.Ticket.Status.Equals("Open", StringComparison.Ordinal))
-                    {
-                        customer.NumClosedTickets -= 1;
-                        customer.NumOpenTickets += 1;
-                    }
-                    else if (cTicket.Ticket.Status.Equals("Closed", StringComparison.Ordinal))
-                    {
-                        customer.NumOpenTickets -= 1;
-                        customer.NumClosedTickets += 1;
-                    }
-
-                    if (cTicket.Ticket.ActionWith.Equals("Relayware", StringComparison.Ordinal))
-                    {
-                        customer.NumOpenTicketsCust -= 1;
-                        customer.NumOpenTicketsRelayware += 1;
-                    }
-                    else if (cTicket.Ticket.ActionWith.Equals("Customer", StringComparison.Ordinal))
-                    {
-                        customer.NumOpenTicketsRelayware -= 1;
-                        customer.NumOpenTicketsCust += 1;
-                    }
-
-                    unitOfWork.CustomerRepository.UpdateRecord(customer);
-                }
+                cTicket.Ticket.CustomerId = customer.CustomerId;
 
                 unitOfWork.TicketRepository.UpdateRecord(cTicket.Ticket);
                 unitOfWork.SaveChanges();
+
+                reCountCustomerTickets();
 
                 return RedirectToAction("Index", "DailyTicketCounts", null);
             }
@@ -205,11 +190,29 @@ namespace Ticket_Tracker.Controllers
         {
             Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id);
 
+            DailyTicketCount dCount = unitOfWork.DailyTicketCountRepository.LatestRecord();
+
+            Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(cid);
+
+            dCount.TotalClosedTickets += 1;
+
+            if (ticket.ActionWith.Equals("Relayware", StringComparison.Ordinal))
+            {
+                dCount.TotalOpenTicketsRelayware -= 1;
+                customer.NumOpenTicketsRelayware -= 1;
+                
+            }
+            else if (ticket.ActionWith.Equals("Customer", StringComparison.Ordinal))
+            {
+                dCount.TotalOpenTicketsCust -= 1;
+                customer.NumOpenTicketsCust -= 1;
+            }
+
+            unitOfWork.DailyTicketCountRepository.UpdateRecord(dCount);
+
             ticket.Status = "Closed";
 
             unitOfWork.TicketRepository.UpdateRecord(ticket);
-
-            Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(cid);
 
             customer.NumClosedTickets += 1;
             customer.NumOpenTickets -= 1;
@@ -218,7 +221,57 @@ namespace Ticket_Tracker.Controllers
 
             unitOfWork.SaveChanges();
 
-            return Json(new { status = ticket.Status, openTickets = customer.NumOpenTickets, custId = customer.CustomerId});
+            return Json(new { status = ticket.Status, openTickets = customer.NumOpenTickets,
+                              custId = customer.CustomerId,
+                              dCountOpen = dCount.TotalOpenedTicket,
+                              dCountClosed = dCount.TotalClosedTickets,
+                              dCountRW = dCount.TotalOpenTicketsRelayware,
+                              dCountCust = dCount.TotalOpenTicketsCust,
+                              dCountId = dCount.DailyTicketCountId,
+                              custOpenRW = customer.NumOpenTicketsRelayware,
+                              custOpenCustomer = customer.NumOpenTicketsCust});
+        }
+
+        [HttpPost]
+        public JsonResult OpenTicket(int id, int cid)
+        {
+            Ticket ticket = unitOfWork.TicketRepository.GetSingleRecord(id);
+
+            DailyTicketCount dCount = unitOfWork.DailyTicketCountRepository.LatestRecord();
+
+            Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(cid);
+
+            dCount.TotalOpenedTicket += 1;
+
+            if (ticket.ActionWith.Equals("Relayware", StringComparison.Ordinal))
+            {
+                dCount.TotalOpenTicketsRelayware += 1;
+                customer.NumOpenTicketsRelayware += 1;
+            }
+            else if (ticket.ActionWith.Equals("Customer", StringComparison.Ordinal))
+            {
+                dCount.TotalOpenTicketsCust += 1;
+                customer.NumOpenTicketsCust += 1;
+            }
+
+            unitOfWork.DailyTicketCountRepository.UpdateRecord(dCount);
+
+            ticket.Status = "Open";
+
+            unitOfWork.TicketRepository.UpdateRecord(ticket);
+
+
+            customer.NumClosedTickets -= 1;
+            customer.NumOpenTickets += 1;
+
+            unitOfWork.CustomerRepository.UpdateRecord(customer);
+
+            unitOfWork.SaveChanges();
+
+            return Json(new { status = ticket.Status, openTickets = customer.NumOpenTickets,
+                    custId = customer.CustomerId, dCountOpen = dCount.TotalOpenedTicket,
+                      dCountRW = dCount.TotalOpenTicketsRelayware, dCountCust = dCount.TotalOpenTicketsCust,
+                      dCountClosed = dCount.TotalClosedTickets});
         }
 
         [HttpPost]
@@ -228,18 +281,42 @@ namespace Ticket_Tracker.Controllers
 
             Customer customer = unitOfWork.CustomerRepository.GetSingleRecord(cid);
 
-            if(ticket.ActionWith == "Relayware")
+            DailyTicketCount dCount = unitOfWork.DailyTicketCountRepository.LatestRecord();
+
+            if (ticket.ActionWith.Equals("Relayware", StringComparison.Ordinal))
             {
-                customer.NumOpenTicketsCust += 1;
-                customer.NumOpenTicketsRelayware -= 1;
+                if (dCount.TotalOpenTicketsRelayware > 0) 
+                {
+                    dCount.TotalOpenTicketsRelayware -= 1;
+                }
+                
+                dCount.TotalOpenTicketsCust += 1;
+
+                if (ticket.Status.Equals("Open", StringComparison.Ordinal))
+                {
+                    customer.NumOpenTicketsCust += 1;
+                    customer.NumOpenTicketsRelayware -= 1;
+                }
                 ticket.ActionWith = "Customer";
             }
-            else if (ticket.ActionWith == "Customer")
+            else if (ticket.ActionWith.Equals("Customer", StringComparison.Ordinal))
             {
-                customer.NumOpenTicketsCust -= 1;
-                customer.NumOpenTicketsRelayware += 1;
+                if (dCount.TotalOpenTicketsCust > 0)
+                {
+                    dCount.TotalOpenTicketsCust -= 1;
+                }
+
+                dCount.TotalOpenTicketsRelayware += 1;  
+
+                if (ticket.Status.Equals("Open", StringComparison.Ordinal))
+                {
+                    customer.NumOpenTicketsCust -= 1;
+                    customer.NumOpenTicketsRelayware += 1;
+                }
                 ticket.ActionWith = "Relayware";
             }
+
+            unitOfWork.DailyTicketCountRepository.UpdateRecord(dCount);
 
             unitOfWork.TicketRepository.UpdateRecord(ticket);
 
@@ -248,7 +325,25 @@ namespace Ticket_Tracker.Controllers
             unitOfWork.SaveChanges();
 
             return Json(new { action = ticket.ActionWith, ticketId = ticket.TicketId, custId = customer.CustomerId,
-                                custOpenRW = customer.NumOpenTicketsRelayware, custOpen = customer.NumOpenTicketsCust});
+                                custOpenRW = customer.NumOpenTicketsRelayware, custOpen = customer.NumOpenTicketsCust,
+                                dCountId = dCount.DailyTicketCountId, dCountCust = dCount.TotalOpenTicketsCust,
+                                dCountRW = dCount.TotalOpenTicketsRelayware});
+        }
+
+        public void reCountCustomerTickets()
+        {
+            IEnumerable<Customer> customers = unitOfWork.CustomerRepository.GetAllRecords();
+
+            foreach(var customer in customers)
+            {
+                customer.NumOpenTickets = unitOfWork.TicketRepository.GetAllTicketsByCustomer(customer.CustomerId).Where( c => c.Status == "Open").Count();
+                customer.NumClosedTickets = unitOfWork.TicketRepository.GetAllTicketsByCustomer(customer.CustomerId).Where(c => c.Status == "Closed").Count();
+                customer.NumOpenTicketsRelayware = unitOfWork.TicketRepository.GetAllTicketsByCustomer(customer.CustomerId).Where(c => c.ActionWith == "Relayware" && c.Status == "Open").Count();
+                customer.NumOpenTicketsCust = unitOfWork.TicketRepository.GetAllTicketsByCustomer(customer.CustomerId).Where(c => c.ActionWith == "Customer" && c.Status == "Open").Count();
+                unitOfWork.CustomerRepository.UpdateRecord(customer);
+
+                unitOfWork.SaveChanges();
+            }
         }
 
         public List<SelectListItem> GetCustomerList()

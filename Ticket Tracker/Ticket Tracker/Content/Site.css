@@ -31,3 +31,11 @@ li.custom-welcome{
     color: gray;
     padding-top:15px;
 }
+
+.add-margin-7 {
+    margin-top: 7px;
+}
+
+.add-margin-100{
+    margin-top: 100px;
+}

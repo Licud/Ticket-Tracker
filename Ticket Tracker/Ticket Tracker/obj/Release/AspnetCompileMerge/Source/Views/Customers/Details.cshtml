@@ -1,0 +1,122 @@
+﻿@model Ticket_Tracker.DAL.Models.Customer
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Customer</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Active)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Active)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.MainCustomerContact)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.MainCustomerContact)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.NotesOne)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NotesOne)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.NumClosedTickets)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NumClosedTickets)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.NumOpenTickets)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NumOpenTickets)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.NumOpenTicketsCust)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NumOpenTicketsCust)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.NumOpenTicketsRelayware)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NumOpenTicketsRelayware)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RelaywareContact)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RelaywareContact)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RelaywareResource)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RelaywareResource)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ServiceDuration)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ServiceDuration)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ServiceStartDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ServiceStartDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ServiceEndDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ServiceEndDate)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.CustomerId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
